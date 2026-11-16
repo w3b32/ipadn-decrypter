@@ -52,10 +52,12 @@ python3 scripts/generate_project.py
 IPADN_REQUIRE_MACPKG=1 IPADN_REQUIRE_NATIVE=1 bash scripts/build_unsigned_ipa.sh
 python3 scripts/verify_ipa.py build/iPadn-unsigned.ipa
 python3 scripts/make_lite_ipa.py build/iPadn-unsigned.ipa build/iPadn-lite-unsigned.ipa
-python3 scripts/verify_ipa.py build/iPadn-lite-unsigned.ipa
 ```
 
 The original Go/Rust bridge build steps remain required for a full-feature IPA.
+The standard-package verifier expects the Live Activity extension. The workflow
+checks the lite package separately; it removes that extension and retains the
+runner template and all other app files.
 The Xcode main target depends on an **unsigned**, `SKIP_INSTALL=YES`
 DecrypterRunner target. A final device-build phase packages that product into
 `HelperTemplate.ipa` inside iPadn. It is a ZIP resource, not a nested installed
@@ -80,12 +82,22 @@ The Linux workspace completed these checks:
   its unsigned IPA package verified (entry point, platform, cryptid, resources).
 
 New XCTest coverage checks completed-task eligibility, actual package platform,
-versioned names, the concurrency gate and failure cleanup. **The complete
-upstream XCTest/UI suite, a normal Xcode main-app build with both Go/Rust bridges,
-and real-device behavior have not been run in this Linux environment.** The
-existing macOS workflow retains those build/test stages and now also runs the
-portable Decrypter checks. Do not treat the Linux checks as a passing full
-release pipeline.
+versioned names, the concurrency gate and failure cleanup.
+
+The [macOS validation run](https://github.com/w3b32/ipadn-decrypter/actions/runs/43891423008)
+for source `3231adef390e89f4c9b482828caee0c351eb83b6` has passed the 15 native and
+packaging tests, Swift payload checks, full unsigned device build with the
+original Go/Rust bridges, and simulator test-runner compilation. The simulator
+test run was canceled at the user's request after the IPAs were built and
+uploaded. Its test result is not claimed as passing. Real-device integration
+has not been tested.
+
+The uploaded standard and lite packages were downloaded and checked separately:
+the archive digest and CRCs match, the standard IPA passes the full verifier,
+and every retained lite-package entry matches the standard IPA byte for byte,
+including its runner template. Build metadata identifies Xcode 27.2, source
+`3231ade`, and iPadn 2.1.3 build 33. See [the validation report](docs/decrypter-validation.json)
+for the run, artifact and check status.
 
 DeepSeek specialist calls supplied source/build reviews, the preparation-screen
 draft, a code review and localization drafts. The coordinating agent reviewed
@@ -100,10 +112,11 @@ is imported from the exact upstream v2.1.3 commit with its original history and
 license; this standalone repository is not registered in GitHub's fork network.
 
 The original `xcode-27` GitHub-hosted runner image provides Xcode 27.2 and iOS
-27.2 SDKs, so the prepared build and simulator-test workflow is retained.
+27.2 SDKs for the physical-device build.
 GitHub Actions artifacts provide unsigned standard and lite IPAs after a passing
 device build. Full CI status is available on the repository's Actions tab.
 Real-device validation remains necessary after installing a generated runner.
 
-The optional iPhone Duo build/screenshot steps have been removed from this fork
-at the user’s request. Regular device builds and iPhone simulator tests remain.
+At the user's request, the IPA workflow contains no simulator builds, simulator
+tests or screenshot steps. It builds and verifies the physical-device IPA,
+uploads standard/lite packages, and keeps the fast host Decrypter checks.

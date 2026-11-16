@@ -12,17 +12,28 @@
     "project_static_checks": "passed",
     "reveal_animation_source_check": "passed",
     "ios_main_typecheck": "passed with temporary external WebKit interface compatibility overlay",
-    "runner_device_build_and_ipa_verification": "passed"
+    "runner_device_build_and_ipa_verification": "passed",
+    "macos_native_and_packaging_tests": "15 passed; 0 failed",
+    "macos_swift_payload_tests": "passed",
+    "full_xcode_device_build_with_go_and_rust_bridges": "passed",
+    "simulator_test_runner_build": "passed",
+    "upstream_xctest_and_ui_suite": "canceled at user request; no passing result claimed",
+    "downloaded_artifact_integrity": "passed: archive and standard IPA SHA-256, ZIP CRCs, full standard IPA verification, lite preserves all nonextension entries"
   },
   "not_run": [
-    "Full upstream XCTest/UI suite on macOS",
-    "Main app Xcode link/archive with original Go/Rust bridges",
+    "Complete upstream XCTest/UI suite",
     "Real-device integration tests"
   ],
   "publication": {
     "repository": "w3b32/ipadn-decrypter",
     "created_by": "user",
     "source_base": "upstream v2.1.3 with original history",
-    "status": "prepared for initial push; full macOS CI pending"
+    "status": "source pushed; unsigned standard/lite IPAs built and verified; simulator run canceled at user request",
+    "validated_source_commit": "3231adef390e89f4c9b482828caee0c351eb83b6",
+    "workflow_run": "https://github.com/w3b32/ipadn-decrypter/actions/runs/43891423008",
+    "unsigned_ipa_artifact": "https://github.com/w3b32/ipadn-decrypter/actions/runs/43891423008/artifacts/14236934233",
+    "artifact_sha256": "df96364b0677aae95ebea1783b17ac573bfa88d2510f9b5a560eca3c158ceae0",
+    "standard_ipa_sha256": "c5ef9543fd15baf59121b4f43b9500c97e0800f2d0e17114d7d2575ee37684af",
+    "lite_ipa_sha256": "b31f9d768f31709c3b58771665c7ceee4d82ea156df24a23900be5eed0d8caa3"
   }
 }

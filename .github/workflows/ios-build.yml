@@ -8,29 +8,11 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
-      run_tests:
-        description: Run iOS Simulator unit tests
-        required: true
-        default: true
-        type: boolean
       publish_release:
-        description: Publish a GitHub Release after all build and test checks pass
+        description: Publish a GitHub Release after the device build and package checks pass
         required: true
         default: false
         type: boolean
-      run_ui_tests:
-        description: Also run the slower iOS Simulator UI interaction tests
-        required: true
-        default: false
-        type: boolean
-      ui_test_scope:
-        description: UI coverage (use full for a complete release validation)
-        required: true
-        default: full
-        type: choice
-        options:
-          - full
-          - notices
 
 permissions:
   contents: read
@@ -43,8 +25,7 @@ jobs:
   build:
     # Build against the current iOS 27 SDK for the target iPhone.
     runs-on: xcode-27
-    # Device build, simulator compilation and tests have independent budgets.
-    timeout-minutes: 85
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: iPadn-iOS
@@ -68,8 +49,7 @@ jobs:
 
       - name: Select Xcode and report SDK
         run: |
-          # 27.2 matches the newest simulators on the image (a newer runtime
-          # than the SDK makes UI tests hang); its SDK is newer than 27.1.
+          # Prefer Xcode 27.2 for the physical-device build.
           if [ -d /Applications/Xcode_27.2.app ]; then
             sudo xcode-select -s /Applications/Xcode_27.2.app/Contents/Developer
           elif [ -d /Applications/Xcode_27.1.app ]; then
@@ -133,101 +113,21 @@ jobs:
             iPadn-iOS/build/iPadn-unsigned.ipa.sha256
             iPadn-iOS/build/iPadn-lite-unsigned.ipa
             iPadn-iOS/build/build-info.json
+            iPadn-iOS/build/ipa-verification.json
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
 
-      - name: Build simulator test runner
-        timeout-minutes: 20
-        if: github.event_name != 'workflow_dispatch' || inputs.run_tests
-        run: |
-          set -o pipefail
-          killall -9 com.apple.CoreSimulator.CoreSimulatorService || true
-          simulator_id="$(python3 scripts/boot_test_simulator.py)"
-          echo "IPADN_TEST_SIMULATOR_ID=$simulator_id" >> "$GITHUB_ENV"
-          xcodebuild build-for-testing -project iPadn.xcodeproj -scheme iPadn \
-            -configuration Debug -destination "platform=iOS Simulator,id=$simulator_id" \
-            -destination-timeout 120 -derivedDataPath build/TestDerivedData \
-            CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO \
-            2>&1 | tee build/test-build.log
-
-      - name: Run simulator tests
-        timeout-minutes: 30
-        if: github.event_name != 'workflow_dispatch' || inputs.run_tests
-        env:
-          RUN_UI_TESTS: ${{ github.event_name == 'workflow_dispatch' && inputs.run_ui_tests }}
-          UI_TEST_SCOPE: ${{ inputs.ui_test_scope || 'full' }}
-        run: |
-          set -o pipefail
-          test_targets=(-only-testing:iPadnTests)
-          if [ "$RUN_UI_TESTS" = "true" ]; then
-            if [ "$UI_TEST_SCOPE" = "notices" ]; then
-              test_targets+=(-only-testing:iPadnUITests/InteractionTests/testCompactNoticeAndAccessibleConfirmation
-                             -only-testing:iPadnUITests/InteractionTests/testHistoryDeletionHasNoUndoCountdown)
-            else
-              test_targets+=(-only-testing:iPadnUITests)
-            fi
-          fi
-          xcodebuild test-without-building -project iPadn.xcodeproj -scheme iPadn \
-            -configuration Debug -destination "platform=iOS Simulator,id=$IPADN_TEST_SIMULATOR_ID" \
-            -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 \
-            -test-timeouts-enabled YES -default-test-execution-time-allowance 90 -maximum-test-execution-time-allowance 120 \
-            -destination-timeout 120 -derivedDataPath build/TestDerivedData \
-            -resultBundlePath build/TestResults.xcresult \
-            "${test_targets[@]}" \
-            CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO \
-            2>&1 | tee build/tests.log
-          xcrun xcresulttool get test-results summary --path build/TestResults.xcresult --format json > build/test-summary.json
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          result = json.loads(Path('build/test-summary.json').read_text())
-          assert result['passedTests'] > 0, 'No passing tests were executed'
-          assert result['failedTests'] == 0, 'Tests failed'
-          print('Executed tests:', result['passedTests'], 'passed;', result['skippedTests'], 'skipped')
-          PY
-
-      - name: Upload build and test diagnostics
+      - name: Upload build diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: iPadn-build-diagnostics
           path: |
             iPadn-iOS/build/*.log
-            iPadn-iOS/build/test-summary.json
             iPadn-iOS/build/ipa-verification.json
-            iPadn-iOS/build/TestResults.xcresult
             iPadn-iOS/build/verification.json
           if-no-files-found: warn
-          retention-days: 14
-
-      - name: Export simulator screenshots
-        if: always()
-        run: |
-          if [ -f build/TestResults.xcresult/Info.plist ]; then
-            xcrun xcresulttool export attachments --path build/TestResults.xcresult --output-path build/test-attachments
-          else
-            echo "::notice::No complete result bundle to export; raw test logs are in diagnostics."
-          fi
-
-      - name: Upload simulator screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: iPadn-test-screenshots
-          path: iPadn-iOS/build/test-attachments
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Upload test summary
-        if: success() && (github.event_name != 'workflow_dispatch' || inputs.run_tests)
-        uses: actions/upload-artifact@v4
-        with:
-          name: iPadn-test-summary
-          path: |
-            iPadn-iOS/build/test-summary.json
-            iPadn-iOS/build/ipa-verification.json
-          if-no-files-found: error
           retention-days: 14
 
       - name: Write download summary
@@ -246,7 +146,7 @@ jobs:
 
   publish-release:
     needs: build
-    if: (github.event_name == 'workflow_dispatch' && inputs.publish_release && inputs.run_tests && inputs.ui_test_scope != 'notices') || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+    if: (github.event_name == 'workflow_dispatch' && inputs.publish_release) || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -255,10 +155,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: iPadn-unsigned-ipa
-          path: release
-      - uses: actions/download-artifact@v4
-        with:
-          name: iPadn-test-summary
           path: release
       - name: Verify and prepare release assets
         id: release
@@ -271,11 +167,9 @@ jobs:
           from pathlib import Path
           root = Path('release')
           info = json.loads((root / 'build-info.json').read_text())
-          tests = json.loads((root / 'test-summary.json').read_text())
           verification = json.loads((root / 'ipa-verification.json').read_text())
           assert info['commit'] == os.environ['EXPECTED_COMMIT'], 'Source commit mismatch'
           assert not info['signed'] and verification['passed'], 'Invalid unsigned IPA'
-          assert tests['passedTests'] > 0 and tests['failedTests'] == 0, 'Tests did not pass'
           version = info['version']
           assert re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version), 'Invalid release version'
           if os.environ['RELEASE_REF'].startswith('refs/tags/'):
@@ -296,14 +190,14 @@ jobs:
           (root / (lite.name + '.sha256')).write_text(lite_digest + '  ' + lite.name + '\n')
           notes = Path('RELEASE_NOTES.md').read_text()
           notes += '\n两个安装包：`' + asset.name + '` 是标准版（含实时活动和桌面小组件，需要 2 个 App ID）；`' + lite.name + '` 是精简版（不含扩展，只需 1 个 App ID），适合 App ID 数量受限的签名方式。\n'
-          notes += '\n验证：设备 Release 编译与 IPA 检查通过；' + str(tests['passedTests']) + ' 项测试通过，' + str(tests['failedTests']) + ' 项失败，' + str(tests['skippedTests']) + ' 项跳过。\n'
+          notes += '\n验证：设备 Release 编译与 IPA 检查通过。此构建流程未运行模拟器测试。\n'
           (root / 'notes.md').write_text(notes)
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write('tag=v' + version + '\n')
               output.write('asset=' + str(asset) + '\n')
               output.write('lite=' + str(lite) + '\n')
           PY
-      - name: Publish tested unsigned IPA
+      - name: Publish verified unsigned IPA
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
