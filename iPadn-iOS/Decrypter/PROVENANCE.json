@@ -30,5 +30,15 @@
       "reason": "Production C and kernel-stub paths adjusted to the vendored directory layout only.",
       "integrated_sha256": "458264cc68d0f737dad37da02c19c5fd55bc9338e16d378a9422650a3cfee51e"
     }
+  },
+  "integration_adaptations": {
+    "Core/PayloadLayout.swift": {
+      "reason": "Canonicalize payload preparation paths and cover aliased-parent inventory on macOS; cryptographic/signature algorithms unchanged.",
+      "integrated_sha256": "b11d2d5f0451ba1f973b943be30ad3b36feab1c9c3c819973a4a7bbedc35378a"
+    },
+    "Tests/PayloadLayoutTests.swift": {
+      "reason": "Canonicalize payload preparation paths and cover aliased-parent inventory on macOS; cryptographic/signature algorithms unchanged.",
+      "integrated_sha256": "17ebd77ef264d8c13c80a2222fcc2228e14aada1a8da27c650d790da500c556a"
+    }
   }
 }

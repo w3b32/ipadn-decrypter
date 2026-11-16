@@ -1,4 +1,9 @@
 import Foundation
+#if canImport(Darwin)
+import Darwin
+#else
+import Glibc
+#endif
 #if canImport(FPCoreNative)
 import FPCoreNative
 #endif
@@ -42,6 +47,7 @@ struct PayloadLayoutTests {
     }
 
     static func main() throws {
+        setbuf(stdout, nil) // Preserve diagnostics if a host assertion throws.
         let fm = FileManager.default
         let root = fm.temporaryDirectory.appendingPathComponent("layout-test-\(UUID().uuidString)")
         try fm.createDirectory(at: root, withIntermediateDirectories: true)
@@ -127,6 +133,22 @@ struct PayloadLayoutTests {
         try require(fm.fileExists(atPath: replica.path), "framework SINF replicated before signing")
         try PayloadLayout.validate(decoded, at: payload, log: { print($0) })
         print("PASS: helper layout, licensing and inventory")
+        // Exercise the actual preparation entry point through an aliased
+        // parent, not just child()/installed(). macOS /var temp roots expose
+        // the same canonical-vs-lexical inventory key mismatch.
+        let preparationAlias = root.appendingPathComponent("PreparationAlias")
+        try fm.createSymbolicLink(at: preparationAlias, withDestinationURL: root)
+        let aliasHelper = root.appendingPathComponent("AliasPreparedHelper.app")
+        try fm.createDirectory(at: aliasHelper, withIntermediateDirectories: true)
+        try PropertyListSerialization.data(fromPropertyList: helperInfo, format: .xml, options: 0)
+            .write(to: aliasHelper.appendingPathComponent("Info.plist"))
+        let aliasPrepared = try PayloadLayout.prepare(app: preparationAlias.appendingPathComponent("Example.app"),
+            in: preparationAlias.appendingPathComponent("AliasPreparedHelper.app"), log: { _ in })
+        try require(aliasPrepared.binaries == decoded.binaries && aliasPrepared.licenses == decoded.licenses,
+                    "aliased preparation records the same original relative inventory")
+        let (aliasPayload, aliasDecoded) = try PayloadLayout.installed(in: aliasHelper)
+        try PayloadLayout.validate(aliasDecoded, at: aliasPayload, log: { _ in })
+        print("PASS: full preparation through an aliased parent retains valid binary/license keys")
         for file in [helper.appendingPathComponent(PayloadLayout.manifestName),
                      helper.appendingPathComponent("EmbeddedPayload/\(PayloadLayout.backupName)"),
                      helper.appendingPathComponent("Info.plist")] {

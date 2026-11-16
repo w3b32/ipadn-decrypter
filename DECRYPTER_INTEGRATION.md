@@ -28,8 +28,10 @@ necessary. Mac, Apple TV and Watch packages are not supported by this runner.
   not changed.
 - iPadn retains its iOS 16 deployment target. The preparation screen and runner
   require iOS 17.4. Unsupported package platforms are checked from IPA metadata.
-- `Decrypter/Core` and the runner source/resources match the working snapshot
-  byte-for-byte. `Decrypter/PROVENANCE.json` records the original hashes.
+- The decryption/signature algorithms and runner source/resources retain the
+  working snapshot. Payload preparation canonicalizes /var and /private/var
+  before deriving inventory keys. `Decrypter/PROVENANCE.json` records original
+  hashes and these integration adaptations.
 - Preparation runs off the main thread; a main-actor gate prevents overlapping
   calls to the core's process-global progress callback. FIFO UI log delivery,
   dismissal controls and failure handling preserve the source and previous
@@ -102,3 +104,6 @@ The original `xcode-27` GitHub-hosted runner image provides Xcode 27.2 and iOS
 GitHub Actions artifacts provide unsigned standard and lite IPAs after a passing
 device build. Full CI status is available on the repository's Actions tab.
 Real-device validation remains necessary after installing a generated runner.
+
+The optional iPhone Duo build/screenshot steps have been removed from this fork
+at the user’s request. Regular device builds and iPhone simulator tests remain.

@@ -275,6 +275,10 @@ enum PayloadLayout {
 
     static func prepare(app: URL, in helper: URL, log: (String) -> Void) throws -> PayloadManifest {
         let fm = FileManager.default
+        // macOS /var and /private/var (and user-provided symlink roots) can
+        // produce different URL spellings during enumeration. Use one root
+        // before deriving the binary/license keys stored in the manifest.
+        let helper = helper.resolvingSymlinksInPath().standardizedFileURL
         let embedded = helper.appendingPathComponent("EmbeddedPayload", isDirectory: true)
         if fm.fileExists(atPath: embedded.path) { try fm.removeItem(at: embedded) }
         try fm.createDirectory(at: embedded, withIntermediateDirectories: true)
@@ -300,8 +304,13 @@ enum PayloadLayout {
         }
         var binaries: [String: String] = [:], licenses: [String: String] = [:]
         var signingDigests: [String: String] = [:]
+        let targetPrefix = target.resolvingSymlinksInPath().standardizedFileURL.path + "/"
         for file in try files(in: target) {
-            let relative = String(file.path.dropFirst(target.path.count + 1))
+            let canonicalFile = file.resolvingSymlinksInPath().standardizedFileURL
+            guard canonicalFile.path.hasPrefix(targetPrefix) else {
+                throw PayloadLayoutError.invalid("An enumerated file escapes the prepared payload.")
+            }
+            let relative = String(canonicalFile.path.dropFirst(targetPrefix.count))
             var probe = fp_info()
             guard file.path.withCString({ fp_probe($0, &probe) }) == 0 else {
                 throw PayloadLayoutError.invalid("Malformed Mach-O: \(relative).")
@@ -320,6 +329,7 @@ enum PayloadLayout {
             if file.pathComponents.contains("SC_Info") { licenses[relative] = try digest(file) }
         }
         guard binaries[executable] != nil else {
+            log("Expected executable: \(executable); inventoried binaries: \(binaries.keys.sorted().joined(separator: ", ")).")
             throw PayloadLayoutError.invalid("The target executable is not a readable Mach-O.")
         }
         var mainInfo = fp_info()
