@@ -4,6 +4,113 @@ import SwiftUI
 import UIKit
 #endif
 
+struct DecrypterHomeView: View {
+    var body: some View {
+        Group {
+            if #available(iOS 17.4, *) {
+                DecrypterLibraryView()
+            } else {
+                Text("Decrypter requires iOS 17.4 or later.")
+                    .padding()
+            }
+        }
+        .navigationTitle("Decrypter")
+    }
+}
+
+@available(iOS 17.4, *)
+private struct DecrypterLibraryView: View {
+    @EnvironmentObject private var downloads: DownloadManager
+    @State private var picking = false
+    @State private var selected: URL?
+    @State private var imported: URL?
+    @State private var openPreparation = false
+    @State private var importReady = false
+    @State private var errorMessage: String?
+
+    private var importRoot: URL {
+        FileManager.default.temporaryDirectory.appendingPathComponent("DecrypterImports", isDirectory: true)
+    }
+
+    private var completed: [DownloadJob] {
+        downloads.jobs.filter { DecrypterEligibility.isCandidate($0, file: downloads.fileURL($0)) }
+    }
+
+    var body: some View {
+        List {
+            Section {
+                Label("Decrypter", systemImage: "lock.open.fill")
+                    .font(.title2.bold())
+                Text("Choose an IPA or a completed download to prepare its decryption runner.")
+                    .foregroundStyle(.secondary)
+                Button {
+                    importReady = false
+                    picking = true
+                } label: {
+                    Label("Select IPA", systemImage: "doc.badge.plus")
+                        .frame(minHeight: 44)
+                }
+                .accessibilityIdentifier("decrypter.select-ipa")
+            }
+
+            Section("Completed downloads") {
+                if completed.isEmpty {
+                    Text("Your completed IPA downloads will appear here.")
+                        .foregroundStyle(.secondary)
+                }
+                ForEach(completed) { job in
+                    if let file = downloads.fileURL(job) {
+                        NavigationLink {
+                            DecrypterPreparationView(source: file)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(verbatim: job.app.name)
+                                Text(verbatim: job.app.version)
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Section("How it works") {
+                Text("Prepare a runner, sign and install it on this iPhone, then open the runner to decrypt. Keep the App Store account that owns the IPA signed in.")
+                    .font(.footnote).foregroundStyle(.secondary)
+            }
+        }
+        .toolPage()
+        .sheet(isPresented: $picking, onDismiss: {
+            if importReady { openPreparation = true }
+        }) {
+            PackageDocumentPicker(allowsMultipleSelection: false) { result in
+                do {
+                    if let source = try result.get().first {
+                        let staged = try IPAImport.stage(source, in: importRoot)
+                        IPAImport.removeOwned(imported, in: importRoot)
+                        imported = staged
+                        selected = staged
+                        importReady = true
+                    }
+                } catch {
+                    errorMessage = error.localizedDescription
+                }
+                picking = false
+            }.ignoresSafeArea()
+        }
+        .navigationDestination(isPresented: $openPreparation) {
+            if let selected { DecrypterPreparationView(source: selected) }
+        }
+        .alert("Preparation failed", isPresented: Binding(
+            get: { errorMessage != nil },
+            set: { if !$0 { errorMessage = nil } }
+        )) {
+            Button("Close", role: .cancel) { errorMessage = nil }
+        } message: {
+            Text(verbatim: errorMessage ?? "")
+        }
+    }
+}
+
 @available(iOS 17.4, *)
 @MainActor
 final class DecrypterPreparationModel: ObservableObject {

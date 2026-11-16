@@ -7,9 +7,9 @@ The upstream GPL-2.0 license and credits are retained.
 
 ## User flow
 
-1. Download an original IPA with iPadn, or use its existing IPA import flow.
-2. Open the completed task's details or long-press its download card.
-3. Choose **Prepare decryption runner** (iOS 17.4+).
+1. Open the **Decrypter** bottom tab (or iPad sidebar).
+2. Choose **Select IPA**, or choose an app under **Completed downloads**.
+3. Choose **Prepare runner** (iOS 17.4+). The action also remains available in completed download details and menus.
 4. Prepare and share `AppName.Version.runner.ipa` to the signing tool.
 5. Sign/install that runner on the iPhone and open it to decrypt.
 6. Share `AppName.Version-decrypted.ipa` from the installed runner.

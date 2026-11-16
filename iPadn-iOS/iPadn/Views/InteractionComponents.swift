@@ -66,13 +66,14 @@ extension View {
 }
 
 struct PackageDocumentPicker: UIViewControllerRepresentable {
+    var allowsMultipleSelection = true
     let completion: (Result<[URL], Error>) -> Void
     func makeCoordinator() -> Coordinator { Coordinator(completion: completion) }
     func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
         // Providers disagree about the IPA UTI. Allow files here, then validate the
         // extension and archive contents in the import service instead of disabling IPAs.
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.data, .archive], asCopy: true)
-        picker.allowsMultipleSelection = true
+        picker.allowsMultipleSelection = allowsMultipleSelection
         picker.delegate = context.coordinator
         return picker
     }

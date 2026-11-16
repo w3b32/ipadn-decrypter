@@ -136,7 +136,7 @@ base = {"IPHONEOS_DEPLOYMENT_TARGET": "16.0", "SDKROOT": "iphoneos", "SWIFT_VERS
 project_configs = configs("Project", base, {"SWIFT_COMPILATION_MODE": "wholemodule", "VALIDATE_PRODUCT": "YES"})
 app_settings = {"PRODUCT_BUNDLE_IDENTIFIER": "app.local.iPadn", "PRODUCT_NAME": "$(TARGET_NAME)", "CODE_SIGN_STYLE": "Automatic",
                 "DEVELOPMENT_TEAM": "", "TARGETED_DEVICE_FAMILY": "1,2", "INFOPLIST_FILE": "iPadn/Info.plist",
-                "GENERATE_INFOPLIST_FILE": "NO", "MARKETING_VERSION": "2.1.3", "CURRENT_PROJECT_VERSION": "33",
+                "GENERATE_INFOPLIST_FILE": "NO", "MARKETING_VERSION": "2.1.3", "CURRENT_PROJECT_VERSION": "34",
                 "SWIFT_OBJC_BRIDGING_HEADER": "Decrypter/Core/Bridging.h",
                 "SWIFT_EMIT_LOC_STRINGS": "YES", "LOCALIZATION_PREFERS_STRING_CATALOGS": "YES",
                 "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",

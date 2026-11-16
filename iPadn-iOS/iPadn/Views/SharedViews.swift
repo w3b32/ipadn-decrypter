@@ -279,11 +279,12 @@ struct RootView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var vectorTabBarUnavailable = false
-    private let destinations: [(title: LocalizedStringKey, symbol: String, kind: RevealAnimationKind)] = [
+    private let destinations: [(title: LocalizedStringKey, symbol: String, kind: RevealAnimationKind?)] = [
         ("搜索", "magnifyingglass", .tabSearch),
         ("下载", "arrow.down.circle.fill", .tabDownloads),
         ("已购", "bag.fill", .tabPurchased),
-        ("账号", "person.crop.circle.fill", .tabAccount)
+        ("账号", "person.crop.circle.fill", .tabAccount),
+        ("Decrypter", "lock.open.fill", nil)
     ]
     var body: some View {
         Group {
@@ -319,6 +320,7 @@ struct RootView: View {
                         .badge(downloads.jobs.filter { DownloadFilter.active.includes($0.status) }.count).tag(1)
                     NavigationStack { PurchasedView() }.tabItem { tabLabel(destinations[2]) }.tag(2)
                     NavigationStack { AccountsView() }.tabItem { tabLabel(destinations[3]) }.tag(3)
+                    NavigationStack { DecrypterHomeView() }.tabItem { tabLabel(destinations[4]) }.tag(4)
                 }
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(.ultraThinMaterial, for: .tabBar)
@@ -381,8 +383,8 @@ struct RootView: View {
             if reduceMotion { transaction.animation = nil; transaction.disablesAnimations = true }
         }
     }
-    @ViewBuilder private func tabLabel(_ item: (title: LocalizedStringKey, symbol: String, kind: RevealAnimationKind)) -> some View {
-        if !vectorTabBarUnavailable, RevealAnimationLibrary.syncLoad(item.kind) != nil {
+    @ViewBuilder private func tabLabel(_ item: (title: LocalizedStringKey, symbol: String, kind: RevealAnimationKind?)) -> some View {
+        if !vectorTabBarUnavailable, let kind = item.kind, RevealAnimationLibrary.syncLoad(kind) != nil {
             Label { Text(item.title) } icon: { Image(uiImage: TabVectorIconView.placeholderImage) }
         } else {
             Label(item.title, systemImage: item.symbol)
@@ -393,6 +395,7 @@ struct RootView: View {
         case 1: DownloadsView()
         case 2: PurchasedView()
         case 3: AccountsView()
+        case 4: DecrypterHomeView()
         default: SearchView()
         }
     }
@@ -594,7 +597,7 @@ struct TabReselectScroll: UIViewRepresentable {
 
     let selected: Int
     let reduceMotion: Bool
-    let kinds: [RevealAnimationKind]
+    let kinds: [RevealAnimationKind?]
     let enableVectorIcons: Bool
     let onVectorFallback: () -> Void
     final class Anchor: UIView {
@@ -611,7 +614,7 @@ struct TabReselectScroll: UIViewRepresentable {
         private var followUpTask: Task<Void, Never>?
         private var fallbackNotified = false
         var reduceMotion = false
-        var kinds: [RevealAnimationKind] = []
+        var kinds: [RevealAnimationKind?] = []
         var enableVectorIcons = true
         var onVectorFallback: (() -> Void)?
 
@@ -669,7 +672,7 @@ struct TabReselectScroll: UIViewRepresentable {
             return TabReselectScroll.attachVectorIcons(in: bar, kinds: kinds)
         }
 
-        func updateSelection(_ selected: Int, reduceMotion: Bool, kinds: [RevealAnimationKind],
+        func updateSelection(_ selected: Int, reduceMotion: Bool, kinds: [RevealAnimationKind?],
                              enableVectorIcons: Bool, onVectorFallback: @escaping () -> Void) {
             self.reduceMotion = reduceMotion
             self.kinds = kinds
@@ -854,9 +857,9 @@ struct TabReselectScroll: UIViewRepresentable {
             return fallbackImageColumns(in: bar, count: count)
         }
 
-        private static func playTabIcon(at index: Int, in bar: UITabBar, kinds: [RevealAnimationKind]) {
+        private static func playTabIcon(at index: Int, in bar: UITabBar, kinds: [RevealAnimationKind?]) {
             guard (0..<kinds.count).contains(index) else { return }
-            let kind = kinds[index]
+            guard let kind = kinds[index] else { return }
             let columns = resolvedTabImageViews(in: bar, count: kinds.count)
             guard columns.count == kinds.count else { return }
             let syncTime = CACurrentMediaTime()
@@ -937,12 +940,12 @@ struct TabReselectScroll: UIViewRepresentable {
     }
     @MainActor
     @discardableResult
-    static func attachVectorIcons(in bar: UITabBar, kinds: [RevealAnimationKind]) -> VectorAttachmentResult {
+    static func attachVectorIcons(in bar: UITabBar, kinds: [RevealAnimationKind?]) -> VectorAttachmentResult {
         guard !kinds.isEmpty, bar.window != nil, bar.bounds.width > 0,
               let items = bar.items, items.count == kinds.count else {
             return .deferred
         }
-        let expectedSlots = kinds.filter { RevealAnimationLibrary.syncLoad($0) != nil }.count
+        let expectedSlots = kinds.compactMap { $0 }.filter { RevealAnimationLibrary.syncLoad($0) != nil }.count
         guard expectedSlots > 0 else {
             removeVectorIcons(in: bar)
             return .unsupportedHierarchy
@@ -954,8 +957,7 @@ struct TabReselectScroll: UIViewRepresentable {
         }
         var attachedSlots = 0
         for (index, imageViews) in columns.enumerated() {
-            let kind = kinds[index]
-            guard RevealAnimationLibrary.syncLoad(kind) != nil else { continue }
+            guard let kind = kinds[index], RevealAnimationLibrary.syncLoad(kind) != nil else { continue }
             var slotReady = false
             for imageView in imageViews {
                 imageView.clipsToBounds = false
