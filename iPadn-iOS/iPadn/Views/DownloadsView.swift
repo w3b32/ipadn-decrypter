@@ -21,6 +21,7 @@ struct DownloadsView: View {
     @State private var swipingDelete: Set<UUID> = []
     @State private var confirmingDelete = false
     @State private var installing: DownloadJob?
+    @State private var preparingRunner: DownloadJob?
     /// The LiveContainer setup tip, once read, stays closed.
     @AppStorage("liveContainerTipDismissed") private var liveContainerTipDismissed = false
     @State private var inspecting: DownloadJob?
@@ -170,6 +171,11 @@ struct DownloadsView: View {
             }.ignoresSafeArea()
         }
         .sheet(item: $share) { file in ShareSheet(items: [file.url]) }
+        .sheet(item: $preparingRunner) { job in
+            if #available(iOS 17.4, *), let file = manager.fileURL(job) {
+                NavigationStack { DecrypterPreparationView(source: file) }
+            }
+        }
         .sheet(item: $inspecting) { item in
             NavigationStack {
                 if let job = manager.jobs.first(where: { $0.id == item.id }) {
@@ -212,6 +218,14 @@ struct DownloadsView: View {
                                     }
                                 }
                                 Section { ShareLink(item: file) { Label("导出文件", systemImage: "square.and.arrow.up") } }
+                                if #available(iOS 17.4, *), DecrypterEligibility.isCandidate(job, file: file) {
+                                    Section {
+                                        NavigationLink { DecrypterPreparationView(source: file) } label: {
+                                            Label("Prepare decryption runner", systemImage: "lock.open")
+                                        }
+                                        .accessibilityIdentifier("download.prepare-decryption-runner")
+                                    }
+                                }
                             }
                         }
                     }.toolPage().navigationTitle("任务详情").navigationBarTitleDisplayMode(.inline)
@@ -384,6 +398,10 @@ struct DownloadsView: View {
                                 Button("任务详情", systemImage: "info.circle") { inspecting = job }
                                 if let file = manager.fileURL(job) {
                                     Button("导出文件", systemImage: "square.and.arrow.up") { share = SharedFile(url: manager.exportURL(job) ?? file) }
+                                    if #available(iOS 17.4, *), DecrypterEligibility.isCandidate(job, file: file) {
+                                        Button("Prepare decryption runner", systemImage: "lock.open") { preparingRunner = job }
+                                            .accessibilityIdentifier("download.prepare-decryption-runner")
+                                    }
                                     if job.rawFormat == nil {
                                         Button("安装", systemImage: "square.and.arrow.down") { installing = job }
                                     }

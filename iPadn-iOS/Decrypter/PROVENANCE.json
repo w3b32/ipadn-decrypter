@@ -1,0 +1,34 @@
+{
+  "source": "w3b32/tetherdecrypt",
+  "source_commit": "bbb5e9c326811e8f5d06ce2106865acfb37c7eb8",
+  "upstream": "mengangs/ipadn",
+  "upstream_tag": "v2.1.3",
+  "upstream_commit": "0349a52fe30117f1044385a0f32a69c08928024d",
+  "files": {
+    "Core/Bridging.h": "7c7384b3aba72bfe09a523845efc157cf1c6a3b836339034e50f3eaeb64c7da5",
+    "Core/Decryptor.swift": "a749ca9576a871df87685bf8131c9259d93c6591b4de17fbfedc0f06e2463553",
+    "Core/FPCore.c": "17e6c3570d1cd4358bcc744e94167694b55ad390c955fa197eda29af3e889812",
+    "Core/FPCore.h": "f1ed8f5c83427058c3ec7cf1720a48c87dc9cd4740115c182bfaed6ff6246492",
+    "Core/IPAImport.swift": "d59fa58a03d95645a2d64b5d252e7178f5e854dbb9419458aaf20a24d50db400",
+    "Core/PayloadLayout.swift": "fcaefa89de907dc4c2c9c72e5850780b49f93535a6bb713b41e47c14e6c89728",
+    "Runner/Bridging.h": "386b2a7ea70b70fb9b83ed100fb7cdfd211ef8bc50ac95973a88798a5134c26f",
+    "Runner/GlassUI.swift": "d9c4ad2bd3313930dad76fd2ffb5462f1ec4ecc70509fa931c4d61f777905c1f",
+    "Runner/HelperApp.swift": "b0997ac9bcb83b5b15b1e5c5b97513eacb858405718c06623512c5206fc74a64",
+    "Runner/Icons/AppIcon60x60@2x.png": "9e522357bdf1c16dd49205bfad52352161fcb5a1a5503543660dfaf2c536f36e",
+    "Runner/Icons/AppIcon60x60@3x.png": "935dae41a8116568fbad53c52e654ef54e2534f00dd9e21c3c58dc7fa6ffde3c",
+    "Runner/Icons/AppIcon76x76.png": "ada58d1148c42dc95d5ecf875e5b46142a7e0352e8a97954373654694c2c4e4d",
+    "Runner/Icons/AppIcon76x76@2x.png": "748d0fbafa95b4e63f29c716523d32595ef66c8340bf858982cccdeef661f631",
+    "Runner/Icons/AppIcon83.5x83.5@2x.png": "04fcfa8e8d182cd0fbebd7f85807ae97486fe9100da51b27136c4425fc2ac482",
+    "Runner/Icons/BrandIcon.png": "dd350c21bb5eb7c84367fde1d25e5884a8f0b4dabbb9c1fe6ef6ef8475ab209e",
+    "Runner/Info.plist": "622b34a269ddf8aa17ec05f14762d2b8a435934c6b11f2ab5fcb567fef91ce92",
+    "Tests/PayloadLayoutTests.swift": "548a7e2facc68b2695865d20cdb5270f31100e3997db8771132d8ff5688092e6",
+    "Tests/kernel_stub.c": "5795a21eda09e9cf141686f220185a40487af78a71f228b4e73f66c6dc2f24a9",
+    "Tests/test_native.py": "7810f028e2e0495fcb0cd04fb3dc8d7588ad6375ad0055dc6fc369617a851170"
+  },
+  "test_adaptations": {
+    "Tests/test_native.py": {
+      "reason": "Production C and kernel-stub paths adjusted to the vendored directory layout only.",
+      "integrated_sha256": "458264cc68d0f737dad37da02c19c5fd55bc9338e16d378a9422650a3cfee51e"
+    }
+  }
+}

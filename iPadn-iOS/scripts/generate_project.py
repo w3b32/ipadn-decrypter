@@ -47,6 +47,18 @@ for path in sorted((ROOT / "iPadn").rglob("*.swift")):
     reference = add("File/" + relative, "PBXFileReference", lastKnownFileType="sourcecode.swift", path=relative, sourceTree="<group>")
     app_files.append(reference)
     sources.append(add("Build/" + relative, "PBXBuildFile", fileRef=reference))
+# Compile the verified preparation core into the main app. The runner has its
+# own @main and UI sources, so those never enter the iPadn source phase.
+decrypter_core_refs = []
+decrypter_core_files = []
+for path in sorted((ROOT / "Decrypter/Core").iterdir()):
+    if path.suffix not in {".swift", ".c", ".h"}: continue
+    kind = {".swift": "sourcecode.swift", ".c": "sourcecode.c.c", ".h": "sourcecode.c.h"}[path.suffix]
+    reference = add("Decrypter/Core/" + path.name, "PBXFileReference", lastKnownFileType=kind, path=path.name, sourceTree="<group>")
+    decrypter_core_refs.append(reference)
+    if path.suffix in {".swift", ".c"}:
+        decrypter_core_files.append(reference)
+        sources.append(add("Decrypter/AppBuild/" + path.name, "PBXBuildFile", fileRef=reference))
 resources = []
 # String catalogs hold every user-facing string. The source language stays
 # Chinese (the keys are the Chinese text); English is translated in the catalog.
@@ -125,6 +137,7 @@ project_configs = configs("Project", base, {"SWIFT_COMPILATION_MODE": "wholemodu
 app_settings = {"PRODUCT_BUNDLE_IDENTIFIER": "app.local.iPadn", "PRODUCT_NAME": "$(TARGET_NAME)", "CODE_SIGN_STYLE": "Automatic",
                 "DEVELOPMENT_TEAM": "", "TARGETED_DEVICE_FAMILY": "1,2", "INFOPLIST_FILE": "iPadn/Info.plist",
                 "GENERATE_INFOPLIST_FILE": "NO", "MARKETING_VERSION": "2.1.3", "CURRENT_PROJECT_VERSION": "33",
+                "SWIFT_OBJC_BRIDGING_HEADER": "Decrypter/Core/Bridging.h",
                 "SWIFT_EMIT_LOC_STRINGS": "YES", "LOCALIZATION_PREFERS_STRING_CATALOGS": "YES",
                 "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                 "ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS": "YES", "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
@@ -135,7 +148,7 @@ app_settings = {"PRODUCT_BUNDLE_IDENTIFIER": "app.local.iPadn", "PRODUCT_NAME": 
                 "IPADN_MACPKG_LDFLAGS": "",
                 # Empty unless scripts/build_unsigned_ipa.sh built the native installation library.
                 "IPADN_NATIVE_LDFLAGS": "",
-                "OTHER_LDFLAGS": ["$(inherited)", "-weak_framework", "Translation", "$(IPADN_MACPKG_LDFLAGS)", "$(IPADN_NATIVE_LDFLAGS)"]}
+                "OTHER_LDFLAGS": ["$(inherited)", "-weak_framework", "Translation", "-lz", "$(IPADN_MACPKG_LDFLAGS)", "$(IPADN_NATIVE_LDFLAGS)"]}
 test_settings = {"PRODUCT_BUNDLE_IDENTIFIER": "app.local.iPadnTests", "PRODUCT_NAME": "$(TARGET_NAME)", "CODE_SIGN_STYLE": "Automatic",
                  "DEVELOPMENT_TEAM": "", "TARGETED_DEVICE_FAMILY": "1,2", "GENERATE_INFOPLIST_FILE": "YES",
                  "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/iPadn.app/iPadn", "BUNDLE_LOADER": "$(TEST_HOST)",
@@ -195,13 +208,46 @@ objects[app_id]["dependencies"].append(add("ExtensionDependency", "PBXTargetDepe
 embed = add("EmbedExtension", "PBXBuildFile", fileRef=extension_product, settings={"ATTRIBUTES": ["RemoveHeadersOnCopy"]})
 objects[app_id]["buildPhases"].append(add("EmbedExtensions", "PBXCopyFilesBuildPhase", buildActionMask="2147483647", dstPath="",
     dstSubfolderSpec="13", files=[embed], name="Embed Foundation Extensions", runOnlyForDeploymentPostprocessing="0"))
+# A separately installed runner is required on stock iOS. Keep its app inside
+# a ZIP resource (HelperTemplate.ipa), not as nested executable code in iPadn.
+runner_id = uid("DecrypterRunnerTarget")
+runner_product = add("DecrypterRunnerProduct", "PBXFileReference", explicitFileType="wrapper.application", includeInIndex="0", path="DecrypterRunner.app", sourceTree="BUILT_PRODUCTS_DIR")
+objects[products]["children"].append(runner_product)
+core_group = add("DecrypterCoreGroup", "PBXGroup", children=decrypter_core_refs, path="Decrypter/Core", sourceTree="<group>")
+runner_files, runner_sources, runner_resources = [], [], []
+for reference in decrypter_core_files:
+    runner_sources.append(add("Decrypter/RunnerCoreBuild/" + reference, "PBXBuildFile", fileRef=reference))
+for path in sorted((ROOT / "Decrypter/Runner").rglob("*")):
+    if not path.is_file() or path.suffix not in {".swift", ".png", ".h", ".plist"}: continue
+    relative = path.relative_to(ROOT / "Decrypter/Runner").as_posix()
+    kind = {".swift":"sourcecode.swift", ".png":"image.png", ".h":"sourcecode.c.h", ".plist":"text.plist.xml"}[path.suffix]
+    reference = add("Decrypter/Runner/" + relative, "PBXFileReference", lastKnownFileType=kind, path=relative, sourceTree="<group>")
+    runner_files.append(reference)
+    if path.suffix == ".swift": runner_sources.append(add("Decrypter/RunnerBuild/" + relative, "PBXBuildFile", fileRef=reference))
+    if path.suffix == ".png": runner_resources.append(add("Decrypter/RunnerResource/" + relative, "PBXBuildFile", fileRef=reference))
+runner_group = add("DecrypterRunnerGroup", "PBXGroup", children=runner_files, path="Decrypter/Runner", sourceTree="<group>")
+objects[root_group]["children"].extend([core_group, runner_group])
+runner_source_phase = add("DecrypterRunnerSources", "PBXSourcesBuildPhase", buildActionMask="2147483647", files=runner_sources, runOnlyForDeploymentPostprocessing="0")
+runner_resource_phase = add("DecrypterRunnerResources", "PBXResourcesBuildPhase", buildActionMask="2147483647", files=runner_resources, runOnlyForDeploymentPostprocessing="0")
+runner_framework_phase = add("DecrypterRunnerFrameworks", "PBXFrameworksBuildPhase", buildActionMask="2147483647", files=[], runOnlyForDeploymentPostprocessing="0")
+runner_settings = {"PRODUCT_BUNDLE_IDENTIFIER":"com.w3b32.ipadn.decrypter.runner", "PRODUCT_NAME":"DecrypterRunner", "IPHONEOS_DEPLOYMENT_TARGET":"17.4", "TARGETED_DEVICE_FAMILY":"1,2", "INFOPLIST_FILE":"Decrypter/Runner/Info.plist", "SWIFT_OBJC_BRIDGING_HEADER":"Decrypter/Runner/Bridging.h", "GENERATE_INFOPLIST_FILE":"NO", "CODE_SIGN_STYLE":"Automatic", "CODE_SIGNING_ALLOWED":"NO", "CODE_SIGNING_REQUIRED":"NO", "CODE_SIGN_IDENTITY":"", "SKIP_INSTALL":"YES", "DEVELOPMENT_TEAM":"", "OTHER_LDFLAGS":["$(inherited)", "-lz"]}
+runner_configs = configs("DecrypterRunner", runner_settings)
+add("DecrypterRunnerTarget", "PBXNativeTarget", buildConfigurationList=runner_configs, buildPhases=[runner_source_phase, runner_framework_phase, runner_resource_phase], buildRules=[], dependencies=[], name="DecrypterRunner", productName="DecrypterRunner", productReference=runner_product, productType="com.apple.product-type.application")
+runner_proxy = add("DecrypterRunnerProxy", "PBXContainerItemProxy", containerPortal=uid("Project"), proxyType="1", remoteGlobalIDString=runner_id, remoteInfo="DecrypterRunner")
+objects[app_id]["dependencies"].append(add("DecrypterRunnerDependency", "PBXTargetDependency", target=runner_id, targetProxy=runner_proxy))
+runner_package_phase = add("PackageDecrypterRunner", "PBXShellScriptBuildPhase", buildActionMask="2147483647", files=[],
+    inputPaths=["$(SRCROOT)/scripts/package_decrypter_runner.py", "$(BUILT_PRODUCTS_DIR)/DecrypterRunner.app/Info.plist"],
+    outputPaths=["$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/HelperTemplate.ipa"],
+    name="Embed unsigned Decrypter runner template", runOnlyForDeploymentPostprocessing="0", shellPath="/bin/bash", alwaysOutOfDate="1",
+    shellScript='set -euo pipefail\nif [ "$PLATFORM_NAME" != "iphoneos" ]; then exit 0; fi\npython3 "$SRCROOT/scripts/package_decrypter_runner.py" "$BUILT_PRODUCTS_DIR/DecrypterRunner.app" "$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/HelperTemplate.ipa"\n')
+objects[app_id]["buildPhases"].append(runner_package_phase)
 project_id = add("Project", "PBXProject", attributes={"BuildIndependentTargetsInParallel": "1", "LastUpgradeCheck": "1600",
     "TargetAttributes": {app_id: {"CreatedOnToolsVersion": "16.0"}, test_id: {"CreatedOnToolsVersion": "16.0", "TestTargetID": app_id}}},
     # English is the fallback for devices whose language the app doesn't ship,
     # while the Chinese source strings stay the keys of the string catalogs.
     buildConfigurationList=project_configs, compatibilityVersion="Xcode 14.0", developmentRegion=OPTIONS.development_language,
     hasScannedForEncodings="0", knownRegions=["zh-Hans", "en", "zh-Hant", "ja", "ko", "ru", "es", "fr", "de", "pt-BR", "ar", "Base"], mainGroup=root_group, productRefGroup=products,
-    projectDirPath="", projectRoot="", targets=[app_id, test_id, ui_id, extension_id], packageReferences=[package])
+    projectDirPath="", projectRoot="", targets=[app_id, test_id, ui_id, extension_id, runner_id], packageReferences=[package])
 
 def render(value, indent=0):
     tab = "\t" * indent

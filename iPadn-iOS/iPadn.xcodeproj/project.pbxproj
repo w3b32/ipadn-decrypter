@@ -189,6 +189,16 @@
 			isa = PBXBuildFile;
 			fileRef = 03223D703FED7749D0182600;
 		};
+		63463551A40249E2F5C35F07 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "Services/DecrypterEligibility.swift";
+			sourceTree = "<group>";
+		};
+		A8BB5BC901EA060847A46457 = {
+			isa = PBXBuildFile;
+			fileRef = 63463551A40249E2F5C35F07;
+		};
 		13CED9008CBE668A4EA6BA76 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.swift;
@@ -529,6 +539,16 @@
 			isa = PBXBuildFile;
 			fileRef = 466D597620E6DD9E4CE9BA7C;
 		};
+		DCAE97403522683477ECB72C = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "Views/DecrypterPreparationView.swift";
+			sourceTree = "<group>";
+		};
+		1EF199ACCA254778AE6F0A4D = {
+			isa = PBXBuildFile;
+			fileRef = DCAE97403522683477ECB72C;
+		};
 		C378265D29DC31EA6BC9A4BB = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.swift;
@@ -778,6 +798,58 @@
 		048737C92F69EE7792D86FB8 = {
 			isa = PBXBuildFile;
 			fileRef = 3A47D75DC1A27D9B3FD97B04;
+		};
+		CDDCF0C3E3FC56531EF41944 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = Bridging.h;
+			sourceTree = "<group>";
+		};
+		E6CF543493F44BAB5193D58B = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = Decryptor.swift;
+			sourceTree = "<group>";
+		};
+		7A26B99A0822DB679EA82FBA = {
+			isa = PBXBuildFile;
+			fileRef = E6CF543493F44BAB5193D58B;
+		};
+		9FCA36B7B6F77B35AD19DA79 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = FPCore.c;
+			sourceTree = "<group>";
+		};
+		C800AE78CBE43C49DB330355 = {
+			isa = PBXBuildFile;
+			fileRef = 9FCA36B7B6F77B35AD19DA79;
+		};
+		5AB889A4C3B8114B2169ACD4 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = FPCore.h;
+			sourceTree = "<group>";
+		};
+		6813B42A8F5096A69FA69EA1 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = IPAImport.swift;
+			sourceTree = "<group>";
+		};
+		D7F1DBE8C20C00DEEB4C3575 = {
+			isa = PBXBuildFile;
+			fileRef = 6813B42A8F5096A69FA69EA1;
+		};
+		001A645DE9D404F461158602 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = PayloadLayout.swift;
+			sourceTree = "<group>";
+		};
+		FDC9DDAA7E810406BB422A3F = {
+			isa = PBXBuildFile;
+			fileRef = 001A645DE9D404F461158602;
 		};
 		D05E572A50390E96676EFEC2 = {
 			isa = PBXFileReference;
@@ -1214,6 +1286,16 @@
 			isa = PBXBuildFile;
 			fileRef = DF17B7F31CB119020ABB3383;
 		};
+		FE4A231236F31A6EA4366181 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = DecrypterIntegrationTests.swift;
+			sourceTree = "<group>";
+		};
+		A21E1C828D6451152E2CF54C = {
+			isa = PBXBuildFile;
+			fileRef = FE4A231236F31A6EA4366181;
+		};
 		FE8B3E8758EB5D71A776EF48 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.swift;
@@ -1360,6 +1442,7 @@
 				0BD07ACE3BF45E1B7AA5D034,
 				88FD0C0038F36D6C93A24DF2,
 				03223D703FED7749D0182600,
+				63463551A40249E2F5C35F07,
 				13CED9008CBE668A4EA6BA76,
 				915A2E41DF6387F7AB848588,
 				F8027934C71C79D0C4556300,
@@ -1394,6 +1477,7 @@
 				64ED8F7AAAC933FAC771090F,
 				51D958971B0F3CA6069C330F,
 				466D597620E6DD9E4CE9BA7C,
+				DCAE97403522683477ECB72C,
 				C378265D29DC31EA6BC9A4BB,
 				8EE0A4159670A0595650DA2C,
 				A1E708F62865C66C68AA85E9,
@@ -1461,6 +1545,7 @@
 			children = (
 				265919398CD78910A79343EB,
 				DF17B7F31CB119020ABB3383,
+				FE4A231236F31A6EA4366181,
 				FE8B3E8758EB5D71A776EF48,
 				D61FDC87C6AEED68C75D19DB,
 				C893DFB88667291E462080FF,
@@ -1483,6 +1568,7 @@
 				970FB190220EDCE2E3BBCD1A,
 				4ED35644D2543696A1034554,
 				87F88906E1FE65AD72091384,
+				EB4188114E9B246DEED6C2D3,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1495,6 +1581,8 @@
 				4EDC8BFAFC6BD936B849F38C,
 				E6EFEE88595978CBA23F4B6F,
 				39E53A5B4D47BF25EC27D946,
+				791C7661D587956AB04A1460,
+				B632BF3264ED9E81E9DDFC71,
 			);
 			sourceTree = "<group>";
 		};
@@ -1519,6 +1607,7 @@
 				E0631520F368539F2C0854C8,
 				36F3F0285F00499BB5753DC1,
 				D9FE40E25730AE6E6B295708,
+				A8BB5BC901EA060847A46457,
 				0B798648110D3E2411FCDAA4,
 				56644B3E8FC3F4757AB71784,
 				7C04EA5E4EC7AB7D31EE0AE7,
@@ -1553,6 +1642,7 @@
 				81760043801C5EA796AC3B07,
 				5B43C4134FAB32D4721B5D05,
 				4A9662AA68301F38F18D0A3B,
+				1EF199ACCA254778AE6F0A4D,
 				BBA95D751DB25B4ECFB64D15,
 				8449F95D426C5A78993B57FB,
 				E03C6E916BCB77F54CB0D996,
@@ -1578,6 +1668,10 @@
 				6A154E22B7CCF6928D3D30BF,
 				5B8632E80D35F5043533FD9E,
 				048737C92F69EE7792D86FB8,
+				7A26B99A0822DB679EA82FBA,
+				C800AE78CBE43C49DB330355,
+				D7F1DBE8C20C00DEEB4C3575,
+				FDC9DDAA7E810406BB422A3F,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1658,6 +1752,7 @@
 			files = (
 				96345D4CE313B1979D8456ED,
 				9CD55C88894B030A66E10BFC,
+				A21E1C828D6451152E2CF54C,
 				350D3A300250E672882AB320,
 				C3CBC32770C9C84E34C8E263,
 				F7855E1B1CA17D39AF64B21B,
@@ -1757,6 +1852,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				MARKETING_VERSION = 2.1.3;
 				CURRENT_PROJECT_VERSION = 33;
+				SWIFT_OBJC_BRIDGING_HEADER = "Decrypter/Core/Bridging.h";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1776,6 +1872,7 @@
 					"$(inherited)",
 					"-weak_framework",
 					Translation,
+					"-lz",
 					"$(IPADN_MACPKG_LDFLAGS)",
 					"$(IPADN_NATIVE_LDFLAGS)",
 				);
@@ -1798,6 +1895,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				MARKETING_VERSION = 2.1.3;
 				CURRENT_PROJECT_VERSION = 33;
+				SWIFT_OBJC_BRIDGING_HEADER = "Decrypter/Core/Bridging.h";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1817,6 +1915,7 @@
 					"$(inherited)",
 					"-weak_framework",
 					Translation,
+					"-lz",
 					"$(IPADN_MACPKG_LDFLAGS)",
 					"$(IPADN_NATIVE_LDFLAGS)",
 				);
@@ -1906,11 +2005,13 @@
 				609A52E5B24E5BB109D44D04,
 				DBBFC30291D55CDD50B10B32,
 				6D1D40D9616D7E90F1E634C7,
+				304D1D86B1A3DD9E92EC1A69,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				5F2AABE8DFB1638A4A4E9731,
+				BAEC54BA5610A511AE4120B0,
 			);
 			name = iPadn;
 			packageProductDependencies = (
@@ -2271,6 +2372,291 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EB4188114E9B246DEED6C2D3 = {
+			isa = PBXFileReference;
+			explicitFileType = wrapper.application;
+			includeInIndex = 0;
+			path = DecrypterRunner.app;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		791C7661D587956AB04A1460 = {
+			isa = PBXGroup;
+			children = (
+				CDDCF0C3E3FC56531EF41944,
+				E6CF543493F44BAB5193D58B,
+				9FCA36B7B6F77B35AD19DA79,
+				5AB889A4C3B8114B2169ACD4,
+				6813B42A8F5096A69FA69EA1,
+				001A645DE9D404F461158602,
+			);
+			path = "Decrypter/Core";
+			sourceTree = "<group>";
+		};
+		F39028AD7009BBFEAAFEE14F = {
+			isa = PBXBuildFile;
+			fileRef = E6CF543493F44BAB5193D58B;
+		};
+		D7425FB1E7B6CC1DB3E448AD = {
+			isa = PBXBuildFile;
+			fileRef = 9FCA36B7B6F77B35AD19DA79;
+		};
+		56FD3D69A07E08BFC4B3DEE2 = {
+			isa = PBXBuildFile;
+			fileRef = 6813B42A8F5096A69FA69EA1;
+		};
+		9EC6280E9AC34704D011DC71 = {
+			isa = PBXBuildFile;
+			fileRef = 001A645DE9D404F461158602;
+		};
+		3C96269961FAD62972B9CFC7 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = Bridging.h;
+			sourceTree = "<group>";
+		};
+		44B64E7063760ED7AD12A95D = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = GlassUI.swift;
+			sourceTree = "<group>";
+		};
+		60B65576E2A1D5ABCD44A5B3 = {
+			isa = PBXBuildFile;
+			fileRef = 44B64E7063760ED7AD12A95D;
+		};
+		DDD6F02922C355419BBE51D0 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = HelperApp.swift;
+			sourceTree = "<group>";
+		};
+		A854B8C1E7A0CD05CE7E6F5A = {
+			isa = PBXBuildFile;
+			fileRef = DDD6F02922C355419BBE51D0;
+		};
+		53811F6F679C15F73F0BB504 = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.png;
+			path = "Icons/AppIcon60x60@2x.png";
+			sourceTree = "<group>";
+		};
+		6D97B5920E965F0E6B5AF60F = {
+			isa = PBXBuildFile;
+			fileRef = 53811F6F679C15F73F0BB504;
+		};
+		135059022E881CF679645A2C = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.png;
+			path = "Icons/AppIcon60x60@3x.png";
+			sourceTree = "<group>";
+		};
+		1C493263251C2ADD4A44A942 = {
+			isa = PBXBuildFile;
+			fileRef = 135059022E881CF679645A2C;
+		};
+		B1104446B9F176898E9348F9 = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.png;
+			path = "Icons/AppIcon76x76.png";
+			sourceTree = "<group>";
+		};
+		2B359A5B7583246BE9317149 = {
+			isa = PBXBuildFile;
+			fileRef = B1104446B9F176898E9348F9;
+		};
+		F69C12A501CF8EAB3A5655B2 = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.png;
+			path = "Icons/AppIcon76x76@2x.png";
+			sourceTree = "<group>";
+		};
+		A3F6F4CF933F3916FDF31C4B = {
+			isa = PBXBuildFile;
+			fileRef = F69C12A501CF8EAB3A5655B2;
+		};
+		574ED3B8B634161BCCF0F36C = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.png;
+			path = "Icons/AppIcon83.5x83.5@2x.png";
+			sourceTree = "<group>";
+		};
+		884E835CDB38FA2DFEF89F88 = {
+			isa = PBXBuildFile;
+			fileRef = 574ED3B8B634161BCCF0F36C;
+		};
+		D6027A01FABEB64B3C53F694 = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.png;
+			path = "Icons/BrandIcon.png";
+			sourceTree = "<group>";
+		};
+		B6E1E7C297D5CD28A288775F = {
+			isa = PBXBuildFile;
+			fileRef = D6027A01FABEB64B3C53F694;
+		};
+		F22176C9CF6FAF9DCFF46C72 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			path = Info.plist;
+			sourceTree = "<group>";
+		};
+		B632BF3264ED9E81E9DDFC71 = {
+			isa = PBXGroup;
+			children = (
+				3C96269961FAD62972B9CFC7,
+				44B64E7063760ED7AD12A95D,
+				DDD6F02922C355419BBE51D0,
+				53811F6F679C15F73F0BB504,
+				135059022E881CF679645A2C,
+				B1104446B9F176898E9348F9,
+				F69C12A501CF8EAB3A5655B2,
+				574ED3B8B634161BCCF0F36C,
+				D6027A01FABEB64B3C53F694,
+				F22176C9CF6FAF9DCFF46C72,
+			);
+			path = "Decrypter/Runner";
+			sourceTree = "<group>";
+		};
+		97BD4C3B356DB32460EE0AE2 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F39028AD7009BBFEAAFEE14F,
+				D7425FB1E7B6CC1DB3E448AD,
+				56FD3D69A07E08BFC4B3DEE2,
+				9EC6280E9AC34704D011DC71,
+				60B65576E2A1D5ABCD44A5B3,
+				A854B8C1E7A0CD05CE7E6F5A,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		11BB3D86B60FF50906F0CF8B = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D97B5920E965F0E6B5AF60F,
+				1C493263251C2ADD4A44A942,
+				2B359A5B7583246BE9317149,
+				A3F6F4CF933F3916FDF31C4B,
+				884E835CDB38FA2DFEF89F88,
+				B6E1E7C297D5CD28A288775F,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D2D083A1026A46DE3885788 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C84F19542A7CA1FC3F6B27C = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_BUNDLE_IDENTIFIER = com.w3b32.ipadn.decrypter.runner;
+				PRODUCT_NAME = DecrypterRunner;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				INFOPLIST_FILE = "Decrypter/Runner/Info.plist";
+				SWIFT_OBJC_BRIDGING_HEADER = "Decrypter/Runner/Bridging.h";
+				GENERATE_INFOPLIST_FILE = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				SKIP_INSTALL = YES;
+				DEVELOPMENT_TEAM = "";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lz",
+				);
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				ONLY_ACTIVE_ARCH = YES;
+				ENABLE_TESTABILITY = YES;
+			};
+			name = Debug;
+		};
+		3877034E85E97CEAE5F5A55A = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_BUNDLE_IDENTIFIER = com.w3b32.ipadn.decrypter.runner;
+				PRODUCT_NAME = DecrypterRunner;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				INFOPLIST_FILE = "Decrypter/Runner/Info.plist";
+				SWIFT_OBJC_BRIDGING_HEADER = "Decrypter/Runner/Bridging.h";
+				GENERATE_INFOPLIST_FILE = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				SKIP_INSTALL = YES;
+				DEVELOPMENT_TEAM = "";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lz",
+				);
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		239CD64170B0F833235DDD54 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C84F19542A7CA1FC3F6B27C,
+				3877034E85E97CEAE5F5A55A,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1EFFB02C93CD5E13834F03D = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 239CD64170B0F833235DDD54;
+			buildPhases = (
+				97BD4C3B356DB32460EE0AE2,
+				8D2D083A1026A46DE3885788,
+				11BB3D86B60FF50906F0CF8B,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DecrypterRunner;
+			productName = DecrypterRunner;
+			productReference = EB4188114E9B246DEED6C2D3;
+			productType = "com.apple.product-type.application";
+		};
+		7AB81594B89DA32E7BE551A9 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 985959785319747668373CC6;
+			proxyType = 1;
+			remoteGlobalIDString = E1EFFB02C93CD5E13834F03D;
+			remoteInfo = DecrypterRunner;
+		};
+		BAEC54BA5610A511AE4120B0 = {
+			isa = PBXTargetDependency;
+			target = E1EFFB02C93CD5E13834F03D;
+			targetProxy = 7AB81594B89DA32E7BE551A9;
+		};
+		304D1D86B1A3DD9E92EC1A69 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/scripts/package_decrypter_runner.py",
+				"$(BUILT_PRODUCTS_DIR)/DecrypterRunner.app/Info.plist",
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/HelperTemplate.ipa",
+			);
+			name = "Embed unsigned Decrypter runner template";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "/bin/bash";
+			alwaysOutOfDate = 1;
+			shellScript = "set -euo pipefail\nif [ \"$PLATFORM_NAME\" != \"iphoneos\" ]; then exit 0; fi\npython3 \"$SRCROOT/scripts/package_decrypter_runner.py\" \"$BUILT_PRODUCTS_DIR/DecrypterRunner.app\" \"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/HelperTemplate.ipa\"\n";
+		};
 		985959785319747668373CC6 = {
 			isa = PBXProject;
 			attributes = {
@@ -2313,6 +2699,7 @@
 				BD64E34F3B89E990E8D455E3,
 				52A966A000CFCE4A907042FB,
 				E56D0D10E7FBD5A0251B398D,
+				E1EFFB02C93CD5E13834F03D,
 			);
 			packageReferences = (
 				9BC77B6C9BFAFB5749CF4757,

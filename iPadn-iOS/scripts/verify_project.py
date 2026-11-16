@@ -59,8 +59,18 @@ for group in groups.values():
             if item["isa"] == "PBXFileReference":
                 check((ROOT / group["path"] / item["path"]).exists(), "Missing project file " + item["path"])
 actual_swift = {p.relative_to(ROOT / "iPadn").as_posix() for p in (ROOT / "iPadn").rglob("*.swift")}
-referenced_swift = {x["path"] for x in objects.values() if x["isa"] == "PBXFileReference" and x.get("path", "").endswith(".swift") and x["path"] not in {p.name for folder in ["iPadnTests", "iPadnUITests", "iPadnLiveActivity"] for p in (ROOT / folder).glob("*.swift")}}
+app_references = set(next(g["children"] for g in groups.values() if g.get("path") == "iPadn"))
+referenced_swift = {x["path"] for key, x in objects.items() if key in app_references and x["isa"] == "PBXFileReference" and x.get("path", "").endswith(".swift")}
 check(actual_swift == referenced_swift, "Swift sources differ from project references")
+runner = next((o for o in objects.values() if o.get("isa") == "PBXNativeTarget" and o.get("name") == "DecrypterRunner"), None)
+check(runner is not None, "Missing separately built Decrypter runner target")
+if runner:
+    for configuration in objects[runner["buildConfigurationList"]]["buildConfigurations"]:
+        check(objects[configuration]["buildSettings"].get("IPHONEOS_DEPLOYMENT_TARGET") == "17.4", "Runner must target iOS 17.4")
+for group in groups.values():
+    if group.get("path") in ["Decrypter/Core", "Decrypter/Runner"]:
+        for child in group["children"]:
+            check((ROOT / group["path"] / objects[child]["path"]).is_file(), "Missing Decrypter source/resource")
 for file in [ROOT / "iPadn/Info.plist", ROOT / "iPadn/Resources/PrivacyInfo.xcprivacy"]:
     plistlib.loads(file.read_bytes())
 info = plistlib.loads((ROOT / "iPadn/Info.plist").read_bytes())

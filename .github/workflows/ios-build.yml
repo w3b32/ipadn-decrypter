@@ -91,6 +91,11 @@ jobs:
           python3 -I scripts/compile_reveal_animations.py --check
           node scripts/runtime_smoke_test.cjs
 
+      - name: Test Decrypter native core and runner packaging
+        run: |
+          python3 -m unittest discover -s Decrypter/Tests -v
+          swift run --package-path Decrypter -c release PayloadLayoutTests
+
       - name: Build unsigned device IPA
         env:
           IPADN_REQUIRE_MACPKG: '1'

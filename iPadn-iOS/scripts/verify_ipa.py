@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import io
 import os
 import plistlib
 import struct
@@ -85,6 +86,20 @@ with zipfile.ZipFile(ipa) as archive:
     assert info['CFBundleDisplayName'] == 'iPadn', 'Unexpected application name'
     assert info['CFBundleIdentifier'] == 'app.local.iPadn', 'Unexpected bundle identifier'
     assert set(info['UIDeviceFamily']) == {1, 2}, 'Both iPhone and iPad must be supported'
+    # A resource ZIP preserves a single installed app/App ID. The runner itself
+    # is signed and installed separately by the user after preparation.
+    assert prefix + 'HelperTemplate.ipa' in archive.namelist(), 'Missing Decrypter runner template'
+    with zipfile.ZipFile(io.BytesIO(archive.read(prefix + 'HelperTemplate.ipa'))) as runner:
+        assert runner.testzip() is None, 'Corrupt Decrypter runner template'
+        plists = [n for n in runner.namelist() if n.startswith('Payload/') and n.count('/') == 2 and n.endswith('.app/Info.plist')]
+        assert len(plists) == 1, 'Runner must have exactly one app'
+        runner_info = plistlib.loads(runner.read(plists[0]))
+        runner_prefix = plists[0][:-len('Info.plist')]
+        assert parse_version_tuple(runner_info['MinimumOSVersion']) == (17, 4, 0), 'Incorrect runner minimum iOS'
+        assert runner_info.get('TetherDecryptTemplate') is True, 'Runner is not an empty template'
+        assert not any('_CodeSignature/' in n or n.endswith('embedded.mobileprovision') for n in runner.namelist()), 'Runner template must be unsigned'
+        runner_versions = inspect_macho_ios_versions(runner.read(runner_prefix + runner_info['CFBundleExecutable']))
+        assert runner_versions and all(parse_version_tuple(v['minos']) == (17, 4, 0) for v in runner_versions), 'Runner is not a physical iOS 17.4 executable'
     for key in ['CFBundleIcons', 'CFBundleIcons~ipad']:
         icons = info[key]
         assert icons['CFBundlePrimaryIcon']['CFBundleIconName'] == 'AppIcon', key

@@ -33,6 +33,9 @@ xcodebuild -project "$project_root/iPadn.xcodeproj" -scheme iPadn -configuration
   -sdk iphoneos -destination 'generic/platform=iOS' \
   -derivedDataPath "$project_root/build/DerivedData" CODE_SIGNING_ALLOWED=NO \
   IPADN_MACPKG_LDFLAGS="$macpkg_flags" IPADN_NATIVE_LDFLAGS="$native_flags" build
+# The main target dependency builds the unsigned runner, then its final build
+# phase embeds HelperTemplate.ipa. Fail rather than export an incomplete app.
+test -f "$project_root/build/DerivedData/Build/Products/Release-iphoneos/iPadn.app/HelperTemplate.ipa"
 package_root="$project_root/build/Export"
 mkdir -p "$package_root/Payload"
 if [ -d "$package_root/Payload/iPadn.app" ]; then
