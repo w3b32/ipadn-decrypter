@@ -93,8 +93,10 @@ jobs:
 
       - name: Test Decrypter native core and runner packaging
         run: |
-          python3 -m unittest discover -s Decrypter/Tests -v
-          swift run --package-path Decrypter -c release PayloadLayoutTests
+          mkdir -p build
+          set -o pipefail
+          python3 -m unittest discover -s Decrypter/Tests -v 2>&1 | tee build/decrypter-native-tests.log
+          swift run --package-path Decrypter -c release PayloadLayoutTests 2>&1 | tee build/decrypter-swift-tests.log
 
       - name: Build unsigned device IPA
         env:
@@ -233,7 +235,7 @@ jobs:
 
       - name: iPhone Duo screenshots
         # Layout check on the foldable; collects screenshots, never fails the build.
-        if: always() && github.event_name == 'workflow_dispatch' && inputs.run_ui_tests
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.run_ui_tests && (steps.ipa.outcome == 'success' || inputs.ui_test_scope == 'duo')
         continue-on-error: true
         timeout-minutes: 15
         run: |
@@ -252,7 +254,7 @@ jobs:
           fi
 
       - name: Upload iPhone Duo screenshots
-        if: always() && github.event_name == 'workflow_dispatch' && inputs.run_ui_tests
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.run_ui_tests && (steps.ipa.outcome == 'success' || inputs.ui_test_scope == 'duo')
         uses: actions/upload-artifact@v4
         with:
           name: iPadn-duo-screenshots
