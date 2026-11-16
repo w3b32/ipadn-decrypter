@@ -221,7 +221,7 @@ struct LoginView: View {
             .frame(maxWidth: .infinity)
         }
         .scrollDismissesKeyboard(.interactively)
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .background(UX.pageBackground.ignoresSafeArea())
         .navigationTitle("").navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(busy)
         .toolbar {
@@ -253,7 +253,7 @@ struct LoginView: View {
                     .padding(.horizontal, 16).frame(minHeight: 50)
             }
             .disabled(busy)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(UX.surface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             if let failure {
                 Label(failure, systemImage: "exclamationmark.circle.fill").font(.footnote).foregroundStyle(.red)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -330,7 +330,7 @@ struct ExistingAccountVerificationView: View {
                                  submitTitle: AppText.text("验证并继续"), sent: sent, resend: requestCode, submit: verify)
                     .frame(maxWidth: 460).padding(24).frame(maxWidth: .infinity)
             }
-            .background(Color(.systemGroupedBackground).ignoresSafeArea())
+            .background(UX.pageBackground.ignoresSafeArea())
             .navigationTitle("").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() }.disabled(busy) }

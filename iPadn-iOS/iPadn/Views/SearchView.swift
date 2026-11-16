@@ -186,7 +186,7 @@ struct SearchView: View {
         }
         .foregroundStyle(.primary)
         .padding(.horizontal, 12).frame(minHeight: 32)
-        .background(Color(.secondarySystemGroupedBackground), in: Capsule())
+        .background(UX.surface, in: Capsule())
         .overlay(Capsule().stroke(Color(.separator), lineWidth: 0.5))
     }
     private var regionPicker: some View {

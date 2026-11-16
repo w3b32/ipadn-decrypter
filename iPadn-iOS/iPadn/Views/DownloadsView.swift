@@ -221,7 +221,7 @@ struct DownloadsView: View {
                                 if #available(iOS 17.4, *), DecrypterEligibility.isCandidate(job, file: file) {
                                     Section {
                                         NavigationLink { DecrypterPreparationView(source: file) } label: {
-                                            Label("Prepare decryption runner", systemImage: "lock.open")
+                                            Label("Prepare runner", systemImage: "lock.open")
                                         }
                                         .accessibilityIdentifier("download.prepare-decryption-runner")
                                     }
@@ -266,7 +266,7 @@ struct DownloadsView: View {
         return text
     }
     private func taskContent(_ job: DownloadJob, update: StoreApp?, editing: Bool = false) -> some View {
-        DownloadTaskRow(snapshot: job, progress: manager.progress(for: job.id), update: update, kept: store.keepsVersion(job), editing: editing, inspecting: { inspecting = job }, primary: { primary(job) }, updating: { downloadUpdate(job) })
+        DownloadTaskRow(snapshot: job, progress: manager.progress(for: job.id), update: update, kept: store.keepsVersion(job), editing: editing, inspecting: { inspecting = job }, primary: { primary(job) }, updating: { downloadUpdate(job) }, preparingRunner: { preparingRunner = job })
     }
     private func shareAction(_ job: DownloadJob) -> [RevealAction] {
         guard job.status == .completed, manager.fileURL(job) != nil else { return [] }
@@ -574,6 +574,7 @@ struct DownloadTaskRow: View {
     var inspecting: () -> Void
     var primary: () -> Void
     var updating: () -> Void = {}
+    var preparingRunner: () -> Void = {}
     /// The status seen last, so finishing in front of the user can be shown.
     @State private var seenStatus: DownloadStatus?
     /// Just finished: the ring closes into a check before Install appears.
@@ -722,12 +723,19 @@ struct DownloadTaskRow: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
                 Button(action: inspecting) { appHeading }.buttonStyle(RevealRowButtonStyle())
-                if showsTrailingControl {
+                if showsTrailingControl && !canPrepareRunner {
                     trailingControl
                         .id(controlKey + (celebrating ? "-done" : ""))
                         .transition(.statusSwap(reduceMotion: reduceMotion))
                         .frame(minWidth: 74, minHeight: 44, alignment: .center)
                 }
+            }
+            if canPrepareRunner {
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 10) { completedActions }
+                    VStack(alignment: .leading, spacing: 8) { completedActions }
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
             if [.running, .pausing, .paused].contains(job.status), job.expected > 0 {
                 ProgressView(value: job.progress).tint(job.status == .running ? UX.tint : .secondary)
@@ -783,6 +791,23 @@ struct DownloadTaskRow: View {
             guard !Task.isCancelled else { return }
             celebrating = false
         }
+    }
+
+    private var canPrepareRunner: Bool {
+        if #available(iOS 17.4, *) {
+            return DecrypterEligibility.isCandidate(job, file: manager.fileURL(job))
+        }
+        return false
+    }
+
+    @ViewBuilder private var completedActions: some View {
+        trailingControl
+        Button(action: preparingRunner) {
+            Label("Prepare runner", systemImage: "lock.open")
+        }
+        .buttonStyle(CapsuleButtonStyle())
+        .accessibilityLabel("Prepare decryption runner")
+        .accessibilityIdentifier("download.prepare-runner." + job.app.id)
     }
 }
 

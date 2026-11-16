@@ -2,17 +2,39 @@ import SwiftUI
 import UIKit
 import QuartzCore
 
-// Visual language modeled on the App Store with the iPadn monochrome accent:
-// grouped backgrounds, capsule action buttons, ring progress, large titles.
+// FastSign-inspired visual language: charcoal canvas, lime accents,
+// monospaced metadata, outlined controls and quiet surfaces.
 enum UX {
     static func motion(_ reduceMotion: Bool) -> Animation? {
         reduceMotion ? nil : .spring(response: 0.38, dampingFraction: 0.9)
     }
     static let tint = Color.accentColor
     static let buttonTint = Color.accentColor
-    static let onAccent = Color(uiColor: .systemBackground)
-    /// The monochrome accent is near-white in dark mode, which would make an "on" switch
-    /// track blend into its white thumb; switch to system green there.
+    /// Text/glyph color that sits on top of the accent fill, adaptive for contrast.
+    static let onAccent = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.039, green: 0.039, blue: 0.039, alpha: 1)
+            : UIColor.white
+    })
+    /// Page canvas: near-black in dark mode, near-white in light.
+    static let pageBackground = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.039, green: 0.039, blue: 0.039, alpha: 1)
+            : UIColor(red: 0.98, green: 0.98, blue: 0.98, alpha: 1)
+    })
+    /// Slightly raised surface for cards/rows.
+    static let surface = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.078, green: 0.078, blue: 0.078, alpha: 1)
+            : UIColor(red: 1, green: 1, blue: 1, alpha: 1)
+    })
+    /// Hairline border color.
+    static let border = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.118, green: 0.118, blue: 0.118, alpha: 1)
+            : UIColor(red: 0.886, green: 0.886, blue: 0.886, alpha: 1)
+    })
+    /// Keep the white system switch thumb distinct from its track in dark mode.
     static let switchTint = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark ? .systemGreen : (UIColor(named: "AccentColor") ?? .label)
     })
@@ -55,9 +77,12 @@ struct PrimaryButtonStyle: ButtonStyle {
         configuration.label
             .font(.body.weight(.semibold))
             .foregroundStyle(configuration.role == .destructive ? Color.white : UX.onAccent)
-            .padding(.horizontal, 16).padding(.vertical, 14)
-            .background((configuration.role == .destructive ? Color.red : UX.buttonTint).opacity(configuration.isPressed ? 0.8 : 1),
-                        in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .padding(.horizontal, 16).padding(.vertical, 13)
+            .background((configuration.role == .destructive ? Color.red : UX.buttonTint).opacity(configuration.isPressed ? 0.82 : 1),
+                        in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .strokeBorder(UX.border, lineWidth: 1))
+            .contentShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             .opacity(enabled ? 1 : 0.35)
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.98 : 1)
             .animation(reduceMotion ? nil : .compatibleSnappy(duration: 0.15), value: configuration.isPressed)
@@ -92,12 +117,14 @@ private struct CapsuleAppearanceModifier: ViewModifier {
             // Capsule labels ("Download", "Get") must never be clipped.
             .fixedSize(horizontal: true, vertical: false)
             .foregroundStyle(filled ? UX.onAccent : UX.tint)
-            .padding(.horizontal, 16).frame(minWidth: 74, minHeight: 30)
-            .background(filled ? AnyShapeStyle(UX.tint) : AnyShapeStyle(Color(.tertiarySystemFill)), in: Capsule())
+            .padding(.horizontal, 16).frame(minWidth: 74, minHeight: 44)
+            .background(filled ? AnyShapeStyle(UX.tint) : AnyShapeStyle(UX.surface), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .strokeBorder(filled ? Color.clear : UX.border, lineWidth: 1))
             .opacity(managesPressAndEnabled ? (down ? pressOpacity : enabled || suppressesPress ? 1 : 0.4) : 1)
             .scaleEffect(managesPressAndEnabled && down && !reduceMotion ? pressScale : 1)
             .animation(managesPressAndEnabled && !reduceMotion ? .compatibleSnappy(duration: 0.14) : nil, value: down)
-            .contentShape(Capsule())
+            .contentShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
     }
 }
 
@@ -728,7 +755,9 @@ struct SearchInput: View {
         }
         .padding(.leading, capsule ? 14 : 10).padding(.trailing, capsule ? 6 : 8)
         .frame(minHeight: capsule ? 44 : 40)
-        .background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: capsule ? 22 : 10, style: .continuous))
+        .background(UX.surface, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .strokeBorder(focused ? UX.tint.opacity(0.6) : UX.border, lineWidth: 1))
         .contentShape(Rectangle())
         .onTapGesture { focused = true }
     }
@@ -805,7 +834,7 @@ struct PageHeader<Trailing: View>: View {
     @ViewBuilder var trailing: Trailing
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            Text(title).font(.largeTitle.weight(.bold)).lineLimit(1).minimumScaleFactor(0.7)
+            Text(title).font(.system(.largeTitle, design: .default).weight(.semibold)).lineLimit(1).minimumScaleFactor(0.7)
                 .accessibilityAddTraits(.isHeader)
             Spacer(minLength: 0)
             trailing
@@ -1127,7 +1156,7 @@ struct VerificationCodeField: View {
                     Text(index < characters.count ? String(characters[index]) : "")
                         .font(.title.monospacedDigit().weight(.semibold))
                         .frame(width: 44, height: 56)
-                        .background(Color(.secondarySystemGroupedBackground),
+                        .background(UX.surface,
                                     in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
                             .stroke(current ? UX.tint : Color(.separator), lineWidth: current ? 2 : 0.5))
@@ -1146,12 +1175,36 @@ struct VerificationCodeField: View {
 struct ToolPageStyle: ViewModifier {
     func body(content: Content) -> some View {
         content.listStyle(.insetGrouped).scrollContentBackground(.hidden)
-            .background(Color(.systemGroupedBackground)).scrollDismissesKeyboard(.interactively)
+            .background(UX.pageBackground).scrollDismissesKeyboard(.interactively)
             .compatibleListSectionSpacing(20)
             .compatibleVerticalContentMargin(.bottom, 20)
     }
 }
 extension View { func toolPage() -> some View { modifier(ToolPageStyle()) } }
+
+/// Global monospaced typography with adaptive native Dynamic Type.
+/// Sans serif section headings are set explicitly by PageHeader.
+struct FastSignAppStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .monospacedDesignIfAvailable()
+            .tint(UX.tint)
+    }
+}
+
+private extension View {
+    @ViewBuilder func monospacedDesignIfAvailable() -> some View {
+        if #available(iOS 16.1, *) {
+            self.fontDesign(.monospaced)
+        } else {
+            self
+        }
+    }
+}
+
+extension View {
+    func fastSignAppStyle() -> some View { modifier(FastSignAppStyle()) }
+}
 
 /// One line of text that, when it does not fit, scrolls once in place to
 /// reveal the rest and returns, instead of being cut off with an ellipsis.
@@ -1429,7 +1482,7 @@ struct MenuChip: UIViewRepresentable {
                 Text(verbatim: title).font(.subheadline).foregroundStyle(.primary).lineLimit(1)
             }
             .padding(.horizontal, 14).frame(minHeight: 38)
-            .background(Color(.secondarySystemGroupedBackground), in: Capsule())
+            .background(UX.surface, in: Capsule())
             .opacity(pressed ? 0.72 : 1)
             .scaleEffect(pressed && !reduceMotion ? 0.94 : 1)
             .animation(reduceMotion ? nil : .compatibleSnappy(duration: 0.14), value: pressed)

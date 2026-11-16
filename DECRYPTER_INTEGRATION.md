@@ -14,6 +14,16 @@ The upstream GPL-2.0 license and credits are retained.
 5. Sign/install that runner on the iPhone and open it to decrypt.
 6. Share `AppName.Version-decrypted.ipa` from the installed runner.
 
+Completed IPA cards also expose **Prepare runner** next to **Install**, without
+opening task details. The controls wrap vertically at large text sizes or on
+narrow screens. The dedicated Decrypter tab supports importing an IPA directly.
+
+Build 35 applies a FastSign-inspired theme throughout the main app: charcoal
+surfaces, adaptive lime accents, monospaced text, thin borders and compact
+rectangular controls. Light/dark appearance settings, Dynamic Type, Reduce
+Motion and the existing navigation and account/download/install features remain
+available. This is a native adaptation of the reference, not an embedded website.
+
 Downloading and preparation now live in the same main app. Stock iOS still
 requires a separately signed and installed per-app runner before decryption.
 The original account-matching IPA/licenses and App Store authorization remain

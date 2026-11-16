@@ -1267,8 +1267,7 @@ private struct DeviceGlyph: View {
 struct CardSection<Content: View, Header: View>: View {
     static var pageMargin: CGFloat { 16 }
     static var cornerRadius: CGFloat {
-        if #available(iOS 26, *) { return 26 }
-        return 10
+        return 8
     }
     var plain = false
     @ViewBuilder var content: Content
@@ -1282,8 +1281,10 @@ struct CardSection<Content: View, Header: View>: View {
             if plain { content } else {
                 _VariadicView.Tree(CardRows()) { content }
                     .labeledContentStyle(CardLabeledContentStyle())
-                    .background(Color(.secondarySystemGroupedBackground),
+                    .background(UX.surface,
                                 in: RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
+                        .strokeBorder(UX.border, lineWidth: 1))
                     .padding(.horizontal, Self.pageMargin)
             }
         }

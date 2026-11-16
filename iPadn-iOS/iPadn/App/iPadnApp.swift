@@ -103,6 +103,7 @@ struct iPadnApp: App {
                 .environmentObject(store.apple)
                 .environmentObject(store.downloads)
                 .environmentObject(store.signer)
+                .fastSignAppStyle()
                 .tint(UX.tint)
                 .toggleStyle(TintedSwitchToggleStyle())
                 .onOpenURL { store.handleURL($0) }

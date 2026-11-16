@@ -305,7 +305,7 @@ struct RootView: View {
                         ForEach(0..<destinations.count, id: \.self) { index in
                             NavigationStack {
                                 page(index).frame(maxWidth: 900).frame(maxWidth: .infinity)
-                                    .background(Color(.systemGroupedBackground))
+                                    .background(UX.pageBackground)
                             }
                             .opacity(tabs.selection == index ? 1 : 0)
                             .allowsHitTesting(tabs.selection == index)

@@ -782,7 +782,7 @@ private struct RevealDeleteModifier: ViewModifier {
             .disabled(driver.blocksPress || driver.isFilling || abs(driver.offset) > 1)
             .padding(.horizontal, 20).padding(.vertical, 12)
             .frame(maxWidth: .infinity, minHeight: style == .compact ? compactHeight * (60.0 / 36) : actionSize * (76.0 / 52), alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground), in: cardShape(rounding: cardRounding))
+            .background(UX.surface, in: cardShape(rounding: cardRounding))
             .overlay {
                 cardShape(rounding: cardRounding)
                     .fill(UX.tint.opacity(restored && !reduceMotion ? 0.045 : 0))
@@ -845,7 +845,7 @@ private struct RevealDeleteModifier: ViewModifier {
                     // Join the resting accounts to the native Add Account row.
                     // The same reference spring rounds and detaches only the
                     // row being dragged; the remaining group stays intact.
-                    cardShape(rounding: 0).fill(Color(.secondarySystemGroupedBackground))
+                    cardShape(rounding: 0).fill(UX.surface)
                         .overlay(alignment: .bottom) {
                             if let separatorInset {
                                 Rectangle().fill(Color(.separator)).frame(height: 1 / displayScale)
