@@ -117,7 +117,7 @@ private struct CapsuleAppearanceModifier: ViewModifier {
             // Capsule labels ("Download", "Get") must never be clipped.
             .fixedSize(horizontal: true, vertical: false)
             .foregroundStyle(filled ? UX.onAccent : UX.tint)
-            .padding(.horizontal, 16).frame(minWidth: 74, minHeight: 44)
+            .padding(.horizontal, 16).frame(minWidth: 74, minHeight: 30)
             .background(filled ? AnyShapeStyle(UX.tint) : AnyShapeStyle(UX.surface), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous)
                 .strokeBorder(filled ? Color.clear : UX.border, lineWidth: 1))
