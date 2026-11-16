@@ -94,20 +94,17 @@ The Linux workspace completed these checks:
 New XCTest coverage checks completed-task eligibility, actual package platform,
 versioned names, the concurrency gate and failure cleanup.
 
-The [macOS validation run](https://github.com/w3b32/ipadn-decrypter/actions/runs/43891423008)
-for source `3231adef390e89f4c9b482828caee0c351eb83b6` has passed the 15 native and
-packaging tests, Swift payload checks, full unsigned device build with the
-original Go/Rust bridges, and simulator test-runner compilation. The simulator
-test run was canceled at the user's request after the IPAs were built and
-uploaded. Its test result is not claimed as passing. Real-device integration
-has not been tested.
+The [macOS validation run](https://github.com/w3b32/ipadn-decrypter/actions/runs/43903925657)
+for source `5de9cb58ec3c37d109e9598b13f804a3d0ee3bee` passed. It ran the 15
+native/packaging tests, all Swift payload checks, and the complete unsigned
+device build with the original Go/Rust bridges. Its IPA verifier passed ZIP CRC,
+runner-template, runtime-hash, native bridge, icon and unsigned-package checks.
+Downloaded diagnostics confirm iPadn 2.1.3 build 35 and the iOS 27.2 SDK.
 
-The uploaded standard and lite packages were downloaded and checked separately:
-the archive digest and CRCs match, the standard IPA passes the full verifier,
-and every retained lite-package entry matches the standard IPA byte for byte,
-including its runner template. Build metadata identifies Xcode 27.2, source
-`3231ade`, and iPadn 2.1.3 build 33. See [the validation report](docs/decrypter-validation.json)
-for the run, artifact and check status.
+[Download the standard/lite unsigned IPAs](https://github.com/w3b32/ipadn-decrypter/actions/runs/43903925657/artifacts/14245671197).
+The workflow runs no simulator build or tests, as requested. Real-device
+integration remains untested. The [validation report](docs/decrypter-validation.json)
+records the source, run and artifact digest.
 
 DeepSeek specialist calls supplied source/build reviews, the preparation-screen
 draft, a code review and localization drafts. The coordinating agent reviewed
