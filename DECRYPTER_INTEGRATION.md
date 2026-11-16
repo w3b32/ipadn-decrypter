@@ -92,9 +92,13 @@ API credentials or account data belong in the repository or build artifacts.
 
 ## Publication status
 
-GitHub returned **403 Resource not accessible by integration** for both the fork
-endpoint and new-repository creation endpoint. No new GitHub repo or release was
-created. The integration is prepared locally as a separate branch, with a
-source archive/patch for review. Create/fork `w3b32/ipadn-decrypter`, grant the
-OpenAI integration access, and provide its URL so the branch can be pushed and
-the macOS build/test workflow run.
+The integration repository is https://github.com/w3b32/ipadn-decrypter. It was
+created by the user after automated repository creation was blocked. The source
+is imported from the exact upstream v2.1.3 commit with its original history and
+license; this standalone repository is not registered in GitHub's fork network.
+
+The original `xcode-27` GitHub-hosted runner image provides Xcode 27.2 and iOS
+27.2 SDKs, so the prepared build and simulator-test workflow is retained.
+GitHub Actions artifacts provide unsigned standard and lite IPAs after a passing
+device build. Full CI status is available on the repository's Actions tab.
+Real-device validation remains necessary after installing a generated runner.

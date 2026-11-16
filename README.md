@@ -1,3 +1,5 @@
+> **iPadn + Decrypter integration:** completed IPA downloads/imports can prepare a decryption runner. See [integration notes](DECRYPTER_INTEGRATION.md) and [fork builds](https://github.com/w3b32/ipadn-decrypter/actions/workflows/ios-build.yml).
+
 <div align="center">
 
 <img src="docs/images/icon.png" width="120" alt="iPadn">
